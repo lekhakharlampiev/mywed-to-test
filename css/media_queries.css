@@ -42,3 +42,8 @@
         flex-grow: 1;
     }
 }
+@media (max-width: 330px) {
+    .photo-popup-open > img {
+        transform: scale(0.3);
+    }
+}
