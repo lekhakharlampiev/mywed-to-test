@@ -123,8 +123,7 @@ let photos_db = [
 
 const photoContainer = document.querySelector('.js-photos__container');
 
-
-//рендер всех фото по умолчанию
+//рендер всех фото по умолчанию:
 const renderPhotos = (arr) => {
     return arr.map((item) => {
         let img = document.createElement('img');
@@ -169,11 +168,40 @@ addListenerToPhoto();
 const inputName = document.querySelector('.js-name-input');
 const citySearchInput = document.querySelector('.js-photographers-select-city__input');
 const citySearchSelectList = document.querySelector('.js-photographers-select-city__list');
+
+//рендел списка городов 
+const renderCitiesList = (container, array) => {
+let sort = [];
+for(let i = 0; i < array.length; i++) {
+    if(!sort.includes(array[i].city)) {
+        sort.push(array[i].city);
+    }
+}
+sort.map((item) => {
+    let li = document.createElement('li');
+    li.className = 'photographers-select-city__list__item js-photographers-select-city__list__item';
+    li.prepend(item);
+    container.prepend(li);
+});
+};
+
+renderCitiesList(citySearchSelectList, photos_db);
+
 const citeSelectItem = document.querySelectorAll('.js-photographers-select-city__list__item');
+
+//если выбирается какой то город то срабатывает фильтр по городу
+for(let i = 0; i < citeSelectItem.length; i++) {
+    citeSelectItem[i].addEventListener('click', function() {
+        let input = citySearchInput;
+        input.value = event.target.textContent;
+        searchByCity(input.value);
+        
+    });
+}
 
 //фильтр по имени
 inputName.addEventListener('input', function() {
-    photoContainer.innerHTML = "";
+    photoContainer.innerHTML = '';
     if(event.target.value && !citySearchInput.value) {
         photos_db.map((item) => {
             if(item.name.toLowerCase().includes(event.target.value.toLowerCase())) {
@@ -197,8 +225,14 @@ inputName.addEventListener('input', function() {
                 photoContainer.prepend(photo) 
             }
         });
-        addListenerToPhoto(); 
-    }
+        addListenerToPhoto();
+    if(photoContainer.innerHTML === '') {
+        let message = document.createElement('div');
+        message.className = 'photographers__photos__message';
+        message.prepend('Совпадений не найдено');
+        photoContainer.prepend(message);
+    }    
+}
     else if (event.target.value && citySearchInput.value) {
             photos_db.map((item) => {
             if(item.name.toLowerCase().includes(event.target.value.toLowerCase()) && item.city.toLowerCase().includes(citySearchInput.value.toLowerCase())) {
@@ -222,7 +256,13 @@ inputName.addEventListener('input', function() {
                 photoContainer.prepend(photo); 
             }
         });
-        addListenerToPhoto(); 
+        addListenerToPhoto();
+    if(photoContainer.innerHTML === '') {
+        let message = document.createElement('div');
+        message.className = 'photographers__photos__message';
+        message.prepend('Совпадений не найдено');
+        photoContainer.prepend(message);
+    }     
     } 
     
     else if (!event.target.value) {
@@ -258,24 +298,17 @@ const searchByCity = (value) => {
                 photoContainer.prepend(photo) 
             }
         });
+
         addListenerToPhoto(); 
     }
-} 
-//если выбирается какой то город то срабатывает фильтр по городу
-for(let i = 0; i < citeSelectItem.length; i++) {
-    citeSelectItem[i].addEventListener('click', function() {
-        let input = citySearchInput;
-        input.value = event.target.textContent;
-        searchByCity(input.value);
-        
-    })
-}
+}; 
 
-citySearchInput.addEventListener('click', function() {
-    citySearchSelectList.classList.toggle('hidden');
-        if (!citySearchSelectList.classList.contains('hidden')) {
-            citySearchInput.classList.add('photographers-select-city__input_border-color');
-        } else {
-            citySearchInput.classList.remove('photographers-select-city__input_border-color');
-        }
-    });
+const buttonReset = document.querySelector('.js-reset-filter__button');
+
+buttonReset.addEventListener('click', function() {
+    inputName.value = '';
+    citySearchInput.value = '';
+    photoContainer.innerHTML = "";
+    renderPhotos(photos_db);
+    addListenerToPhoto();
+});
